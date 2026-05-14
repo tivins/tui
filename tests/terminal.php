@@ -34,6 +34,10 @@ if (Terminal::parseCursorPositionResponse('') !== null) {
 }
 
 $size = Terminal::screenSize();
+if (Terminal::lineOverwritePrefix() !== "\r\e[2K") {
+    fail('lineOverwritePrefix devrait être \\r + effacement de ligne CSI');
+}
+
 if ($size !== null) {
     if ($size['rows'] <= 0 || $size['cols'] <= 0) {
         fail('screenSize doit retourner des dimensions positives ou null');

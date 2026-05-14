@@ -12,7 +12,7 @@ echo AsciiText::toString(AsciiText::get('abc')) . PHP_EOL . PHP_EOL;
 
 echo AsciiText::toString(AsciiText::get('Hello 2026!')) . PHP_EOL;
 
-echo Frame::from(AsciiText::toString(AsciiText::get('LLM-PHP')))
+echo Frame::from(AsciiText::toString(AsciiText::get('PHP TUI')) . "\nTerminal User Interface")
     ->borderStyle(Frame::STYLE_ROUNDED)
     ->borderColor(TermColor::Green)
     ->contentColor(TermColor::White)

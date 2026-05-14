@@ -41,6 +41,10 @@ class Terminal
         echo "\e[{$lines}E";
     }
 
+    /**
+     * CSI CPL : remonte le curseur de « n » lignes puis le place en colonne 1 (plus pratique que {@see cursorUp()}
+     * + {@see carriageReturn()} pour réécrire un bloc multi-lignes comme dans `examples/throbber.php`).
+     */
     public static function cursorPreviousLine(int $lines = 1): void
     {
         echo "\e[{$lines}F";
@@ -282,6 +286,21 @@ class Terminal
         }
 
         return $out;
+    }
+
+    /** Retour chariot : curseur en colonne 1 de la ligne courante (`\r`). */
+    public static function carriageReturn(): void
+    {
+        echo "\r";
+    }
+
+    /**
+     * Préfixe pour réécrire la ligne courante sans ajouter de ligne : voir {@see carriageReturn()} et effacement `\e[2K`.
+     * À concaténer avant le nouveau texte puis `flush()`.
+     */
+    public static function lineOverwritePrefix(): string
+    {
+        return "\r\e[2K";
     }
 
     /** Efface toute la ligne courante (curseur vertical inchangé). */

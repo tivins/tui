@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.1.12] - 2026-05-14
+
+### Added
+
+- `Terminal` : `carriageReturn()`, `lineOverwritePrefix()` (préfixe réécriture ligne : `\r\e[2K`).
+- `examples/throbber.php` : réécritures via `Terminal` (`cursorPreviousLine`, `eraseLine`, `lineOverwritePrefix`).
+
+### Changed
+
+- `Throbber::lineRefreshPrefix()` délègue à `Terminal::lineOverwritePrefix()`.
+
+## [1.1.11] - 2026-05-14
+
+### Changed
+
+- `examples/throbber.php` : démo « deux lignes » mises à jour en place (`\e[1A\r` depuis la fin de la 2ᵉ ligne + effacement).
+
+## [1.1.10] - 2026-05-14
+
+### Changed
+
+- `examples/throbber.php` : section supplémentaire « une ligne » avec `lineRefreshPrefix()` + `flush()` pour mise à jour en place.
+
+## [1.1.9] - 2026-05-14
+
+### Added
+
+- `Throbber` : indicateur d’activité terminal (styles `braille`, `pipe`), `tick()`, message, pourcentage, durée depuis `start()`, modèle `{spinner} {message}{trail}` et placeholders (`percent`, `elapsed`, `elapsed_paren`, etc.), `registerStyle()` pour styles personnalisés, `lineRefreshPrefix()` pour réécrire une ligne.
+- `tests/throbber.php`, `examples/throbber.php`.
+
 ## [1.1.8] - 2026-05-14
 
 ### Added

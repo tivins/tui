@@ -16,12 +16,13 @@ There are **no Composer runtime dependencies**.
 
 | Area | Classes | What they do |
 |------|---------|---------------|
-| Screen & cursor | `Terminal` | Clear screen, cursor movement, show/hide cursor, CPR parsing, erase line, alternate screen buffer, `screenSize()` (Unix and Windows-friendly fallbacks). |
+| Screen & cursor | `Terminal` | Clear/move cursor, CPR, `eraseLine`, alternate screen, `screenSize()`, `carriageReturn()`, `lineOverwritePrefix()` (réécrire une ligne), `cursorPreviousLine()` (CPL, colonne 1). |
 | Boxes | `Frame` | Multiline bordered panels: presets `single`, `double`, `rounded`, `heavy`, optional titles, padding, independent border/content/title colors, colored content with correct alignment. |
 | Banners | `AsciiText` | Three-line glyphs (Future Smooth subset) via `AsciiText::get()` and `AsciiText::toString()`. |
 | Colors | `TermColor` | `TermColor::*->fmt(string)` wraps text in SGR sequences. |
 | ANSI strings | `Ansi` | `stripSgr()` and `displayWidth()` for layouts that ignore escape codes when measuring width. |
 | stdin | `Console` | `stdinIsTty()` and `readLine()` for interactive pauses without mixing stdin with terminal inquiries. |
+| Activity | `Throbber` | Spinner (UTF-8 braille or ASCII pipe style), customizable template, optional percent and elapsed time, `registerStyle()` for more sprite sets. |
 
 ## Quick examples
 
@@ -85,6 +86,7 @@ From the repository root:
 | `php examples/showcase.php` | Full-screen demo (alternate buffer, banners, framed panels). Waits for Enter when stdin is a TTY. |
 | `php examples/frame.php` | `Frame` variants and edge cases. |
 | `php examples/ascii_text.php` | Banner sample. |
+| `php examples/throbber.php` | `Throbber` : défilement, une ligne puis deux lignes mises à jour en place (`\r`/`\e[2K`, `\e[1A`). |
 
 ## Tests
 
@@ -94,7 +96,7 @@ Scripts under `tests/` are plain PHP assertions (no PHPUnit):
 php tests/terminal.php
 php tests/frame_edges.php
 php tests/ascii_text.php
-php tests/ansi_console.php
+php tests/throbber.php
 ```
 
 ## Tooling
