@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.1.4] - 2026-05-14
+
+### Fixed
+
+- `Terminal::screenSize()` : sous Windows, utiliser `2>nul` au lieu de `2>/dev/null` pour les appels `stty` / `tput` (évite l’erreur cmd « Le chemin d’accès spécifié est introuvable »).
+
+## [1.1.3] - 2026-05-14
+
+### Added
+
+- `Terminal::screenSize()` : dimensions du terminal (`LINES`/`COLUMNS`, `posix_ioctl` si dispo, `mode con` sous Windows, puis `stty` / `tput`).
+- `Terminal::parseCursorPositionResponse()` : interprétation d’une réponse CPR (`\e[row;colR`).
+- `Terminal::eraseLine()`, `eraseLineEnd()`, `enterAlternateScreen()`, `leaveAlternateScreen()`.
+
+### Fixed
+
+- `Terminal::cursorPosition()` : lecture complète de la réponse CPR (au lieu de 3 octets), `fflush(STDOUT)`, flux par défaut `/dev/tty` sous Unix ; type de retour `?array`.
+- `Terminal::cursorDisable()` / `cursorEnable()` : délégation à `cursorHide()` / `cursorShow()` pour éviter la duplication.
+
+### Added (tests)
+
+- `tests/terminal.php` : parsing CPR et contrôle basique de `screenSize()`.
+
 ## [1.1.2] - 2026-05-14
 
 ### Added
