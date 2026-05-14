@@ -234,7 +234,7 @@ class Frame
 
         $innerTextWidth = 0;
         foreach ($lines as $line) {
-            $innerTextWidth = max($innerTextWidth, $this->strLen($line));
+            $innerTextWidth = max($innerTextWidth, $this->displayWidth($line));
         }
 
         $padH = $this->paddingLeft + $this->paddingRight;
@@ -484,19 +484,25 @@ class Frame
 
     private function alignLine(string $line, int $width, string $alignment): string
     {
-        $len = $this->strLen($line);
-        if ($len >= $width) {
-            return $this->strSlice($line, 0, $width);
+        $len = $this->displayWidth($line);
+        if ($len < $width) {
+            $pad = $width - $len;
+
+            return match ($alignment) {
+                self::ALIGN_LEFT => $line . str_repeat(' ', $pad),
+                self::ALIGN_RIGHT => str_repeat(' ', $pad) . $line,
+                self::ALIGN_CENTER => str_repeat(' ', intdiv($pad, 2)) . $line . str_repeat(' ', intdiv($pad + 1, 2)),
+                default => $line . str_repeat(' ', $pad),
+            };
         }
 
-        $pad = $width - $len;
+        if ($len > $width) {
+            $plain = $this->stripAnsiSgr($line);
 
-        return match ($alignment) {
-            self::ALIGN_LEFT => $line . str_repeat(' ', $pad),
-            self::ALIGN_RIGHT => str_repeat(' ', $pad) . $line,
-            self::ALIGN_CENTER => str_repeat(' ', intdiv($pad, 2)) . $line . str_repeat(' ', intdiv($pad + 1, 2)),
-            default => $line . str_repeat(' ', $pad),
-        };
+            return $this->strSlice($plain, 0, $width);
+        }
+
+        return $line;
     }
 
     private function strLen(string $s): int
@@ -506,6 +512,19 @@ class Frame
         }
 
         return strlen($s);
+    }
+
+    /** Retire les séquences CSI SGR (`\e[…m`) pour mesurer la largeur à l’écran. */
+    private function stripAnsiSgr(string $s): string
+    {
+        $out = preg_replace("/\x1b\[[0-9;]*m/", '', $s);
+
+        return $out ?? $s;
+    }
+
+    private function displayWidth(string $s): int
+    {
+        return $this->strLen($this->stripAnsiSgr($s));
     }
 
     private function strSlice(string $s, int $start, int $length): string

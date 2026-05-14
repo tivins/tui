@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.1.6] - 2026-05-14
+
+### Fixed
+
+- `Frame::render()` / `alignLine()` : largeur du contenu mesurée sans les séquences CSI couleur (`\e[…m`), pour que le remplissage aligne correctement les bordures verticales quand le texte contient de l’ANSI.
+- `Frame::alignLine()` : ne plus tronquer lorsque la largeur affichée égale exactement la colonne utile (`>` au lieu de `>=`), et tronquer sur le texte sans ANSI si dépassement (évite une coupure au milieu des séquences ou du texte visible).
+
+### Added
+
+- `tests/frame_edges.php` : cadre à lignes de largeurs affichées égales avec contenu partiellement coloré ; ligne qui « remplit » exactement la largeur utile avec ANSI sans être tronquée.
+
+### Changed
+
+- `examples/showcase.php` : `minInnerWidth(7)` sur les quatre mini-cadres (mot le plus long « rounded ») pour aligner leurs bordures entre eux.
+
 ## [1.1.5] - 2026-05-14
 
 ### Added

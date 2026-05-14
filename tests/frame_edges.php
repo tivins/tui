@@ -79,4 +79,21 @@ if (!str_contains($empty, '═')) {
     fail('empty frame should still draw horizontal rule');
 }
 
+$ansiMix = Frame::from(TermColor::Green->fmt('aa') . "\nbbbb")->borderColor(null)->render();
+$wMix = visibleWidths($ansiMix);
+if ($wMix !== [] && count(array_unique($wMix)) !== 1) {
+    fail('colored content lines should share same visible width (ANSI stripped for layout)');
+}
+
+$apiColored = 'API : ' . TermColor::White->fmt('Terminal') . ' · ' . TermColor::White->fmt('Frame') . ' · ' . TermColor::White->fmt('AsciiText');
+$tight = Frame::from("dimensions : 24 × 80\n" . $apiColored)
+    ->borderColor(null)
+    ->contentColor(null)
+    ->paddingHorizontal(1)
+    ->paddingVertical(1)
+    ->render();
+if (!str_contains($tight, 'Frame') || !str_contains($tight, 'AsciiText')) {
+    fail('exact-fit colored line must not be sliced by escape-byte count');
+}
+
 echo "frame_edges: OK\n";

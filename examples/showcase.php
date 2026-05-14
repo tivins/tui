@@ -101,11 +101,13 @@ $statsFrame = (string) Frame::from(implode("\n", $statsLines))
     ->paddingVertical(1)
     ->paddingHorizontal(1);
 
+/* largeur interne commune : le mot le plus long est « rounded » (7 colonnes). */
+$framesDemoInnerMin = 7;
 $framesDemo = implode("\n", [
-    Frame::from('single')->borderStyle(Frame::STYLE_SINGLE)->borderColor(TermColor::Blue)->render(),
-    Frame::from('double')->borderStyle(Frame::STYLE_DOUBLE)->borderColor(TermColor::Magenta)->render(),
-    Frame::from('rounded')->borderStyle(Frame::STYLE_ROUNDED)->borderColor(TermColor::Green)->render(),
-    Frame::from('heavy')->borderStyle(Frame::STYLE_HEAVY)->borderColor(TermColor::Red)->render(),
+    Frame::from('single')->borderStyle(Frame::STYLE_SINGLE)->borderColor(TermColor::Blue)->minInnerWidth($framesDemoInnerMin)->render(),
+    Frame::from('double')->borderStyle(Frame::STYLE_DOUBLE)->borderColor(TermColor::Magenta)->minInnerWidth($framesDemoInnerMin)->render(),
+    Frame::from('rounded')->borderStyle(Frame::STYLE_ROUNDED)->borderColor(TermColor::Green)->minInnerWidth($framesDemoInnerMin)->render(),
+    Frame::from('heavy')->borderStyle(Frame::STYLE_HEAVY)->borderColor(TermColor::Red)->minInnerWidth($framesDemoInnerMin)->render(),
 ]);
 
 $framesBlock = (string) Frame::from($framesDemo)
