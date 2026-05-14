@@ -6,7 +6,7 @@ namespace Tivins\Tui;
 
 /**
  * Indicateur d'activité (spinner) pour interfaces terminal : plusieurs styles d'animation,
- * message, pourcentage et durée, texte piloté par un modèle (`{spinner}`, `{message}`, `{trail}`, `{bar}`, etc.).
+ * message, pourcentage et durée, texte piloté par un modèle (`{spinner}`, `{message}`, `{rotating_message}`, `{trail}`, `{bar}`, etc.).
  *
  * Chaque instance gère son propre index d'image pour permettre plusieurs indicateurs à l'écran.
  * Pour réécrire une ligne : {@see Terminal::lineOverwritePrefix()} (ou {@see Terminal::carriageReturn()} + {@see Terminal::eraseLine()}), puis {@see render()}.
@@ -146,7 +146,7 @@ final class Throbber
     }
 
     /**
-     * Modèle avec remplacements : `{spinner}`, `{message}`, `{trail}`, `{percent}`, `{elapsed}`, `{elapsed_paren}`, `{bar}`.
+     * Modèle avec remplacements : `{spinner}`, `{message}`, `{rotating_message}`, `{trail}`, `{percent}`, `{elapsed}`, `{elapsed_paren}`, `{bar}`.
      */
     public function template(string $template): self
     {
@@ -267,13 +267,14 @@ final class Throbber
         }
 
         return [
-            'spinner'      => $this->spinner(),
-            'message'      => $this->message,
-            'trail'        => $this->trail(),
-            'percent'      => $pct,
-            'elapsed'      => $elapsed,
-            'elapsed_paren' => $elapsedParen,
-            'bar'          => $this->renderBar(),
+            'spinner'          => $this->spinner(),
+            'message'          => $this->message,
+            'rotating_message'  => RotatingColors::render($this->message, $this->frameIndex),
+            'trail'            => $this->trail(),
+            'percent'          => $pct,
+            'elapsed'          => $elapsed,
+            'elapsed_paren'    => $elapsedParen,
+            'bar'              => $this->renderBar(),
         ];
     }
 

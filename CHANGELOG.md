@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.3.0] - 2026-05-14
+
+### Added
+
+- `RotatingColors` : effet « couleurs tournantes » sur une chaîne (`render($text, $offset, $palette)`), palette par défaut gris / gris clair / blanc.
+- `Throbber` : placeholder `{rotating_message}` — message coloré avec le même décalage que l’index d’animation (`tick()`).
+
+### Added (tests / examples)
+
+- `tests/rotating_colors.php`, `examples/rotating_colors.php`.
+
 ## [1.2.1] - 2026-05-14
 
 ### Fixed

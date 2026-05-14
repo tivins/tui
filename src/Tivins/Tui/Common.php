@@ -18,7 +18,7 @@ final class Common
     }
     public static function error(string $message): string
     {
-        // ✗?  
+        // ✗ is too wide
         return TermColor::Red->fmt("× $message");
     }
     public static function warning(string $message): string
