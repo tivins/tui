@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.5] - 2026-05-14
+
+### Added
+
+- `examples/showcase.php` : démo plein écran (`Terminal`), bannière `AsciiText`, panneaux `Frame`, dimensions via `screenSize()`, sortie sur Entrée si stdin est un TTY.
+
 ## [1.1.4] - 2026-05-14
 
 ### Fixed
