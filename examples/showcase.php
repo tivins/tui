@@ -11,30 +11,17 @@ declare(strict_types=1);
  */
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use Tivins\Tui\Ansi;
 use Tivins\Tui\AsciiText;
+use Tivins\Tui\Console;
 use Tivins\Tui\Frame;
 use Tivins\Tui\Terminal;
 use Tivins\Tui\TermColor;
 
-/** Retire les séquences CSI SGR pour estimer la largeur affichée. */
-function showcase_strip_ansi(string $s): string
-{
-    $out = preg_replace('/\e\[[0-9;]*m/', '', $s);
-
-    return $out ?? $s;
-}
-
-function showcase_visible_width(string $line): int
-{
-    $plain = showcase_strip_ansi($line);
-
-    return function_exists('mb_strlen') ? mb_strlen($plain, 'UTF-8') : strlen($plain);
-}
-
-/** Centre une ligne dans la console (Largeur basée sur le texte sans ANSI). */
+/** Centre une ligne dans la console (largeur affichée sans séquences SGR). */
 function showcase_center_line(string $line, int $cols): string
 {
-    $w = showcase_visible_width($line);
+    $w = Ansi::displayWidth($line);
     $pad = max(0, intdiv($cols - $w, 2));
 
     return str_repeat(' ', $pad) . $line;
@@ -58,7 +45,7 @@ function showcase_center_uniform_block(string $block, int $cols): string
         return '';
     }
 
-    $widths = array_map(static fn (string $l): int => showcase_visible_width($l), $lines);
+    $widths = array_map(static fn (string $l): int => Ansi::displayWidth($l), $lines);
     $maxW = max($widths);
     $leftPad = max(0, intdiv($cols - $maxW, 2));
     $prefix = str_repeat(' ', $leftPad);
@@ -146,7 +133,7 @@ $stack = implode("\n\n", [
 $linesInStack = substr_count($stack, "\n") + 1;
 $extraNl = max(0, $rows - $linesInStack - 2);
 $bottomHint = showcase_center_line(
-    TermColor::Gray->fmt(stream_isatty(STDIN) ? 'entrée pour quitter' : '(stdin non interactif — fin immédiate)'),
+    TermColor::Gray->fmt(Console::stdinIsTty() ? 'entrée pour quitter' : '(stdin non interactif — fin immédiate)'),
     $cols,
 );
 
@@ -159,8 +146,8 @@ try {
     echo str_repeat("\n", $extraNl);
     echo $bottomHint;
 
-    if (stream_isatty(STDIN)) {
-        fgets(STDIN);
+    if (Console::stdinIsTty()) {
+        Console::readLine();
     }
 } finally {
     Terminal::cursorShow();

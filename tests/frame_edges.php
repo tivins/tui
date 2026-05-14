@@ -9,6 +9,7 @@ declare(strict_types=1);
  */
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use Tivins\Tui\Ansi;
 use Tivins\Tui\Frame;
 use Tivins\Tui\TermColor;
 
@@ -25,7 +26,7 @@ function visibleWidths(string $rendered): array
     $out = [];
 
     foreach ($lines as $line) {
-        $plain = preg_replace("/\x1b\[[0-9;]*m/", '', $line) ?? $line;
+        $plain = Ansi::stripSgr($line);
         $plain = str_replace("\r", '', $plain);
         $out[] = function_exists('mb_strlen') ? mb_strlen($plain, 'UTF-8') : strlen($plain);
     }

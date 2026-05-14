@@ -234,7 +234,7 @@ class Frame
 
         $innerTextWidth = 0;
         foreach ($lines as $line) {
-            $innerTextWidth = max($innerTextWidth, $this->displayWidth($line));
+            $innerTextWidth = max($innerTextWidth, Ansi::displayWidth($line));
         }
 
         $padH = $this->paddingLeft + $this->paddingRight;
@@ -484,7 +484,7 @@ class Frame
 
     private function alignLine(string $line, int $width, string $alignment): string
     {
-        $len = $this->displayWidth($line);
+        $len = Ansi::displayWidth($line);
         if ($len < $width) {
             $pad = $width - $len;
 
@@ -497,7 +497,7 @@ class Frame
         }
 
         if ($len > $width) {
-            $plain = $this->stripAnsiSgr($line);
+            $plain = Ansi::stripSgr($line);
 
             return $this->strSlice($plain, 0, $width);
         }
@@ -512,19 +512,6 @@ class Frame
         }
 
         return strlen($s);
-    }
-
-    /** Retire les séquences CSI SGR (`\e[…m`) pour mesurer la largeur à l’écran. */
-    private function stripAnsiSgr(string $s): string
-    {
-        $out = preg_replace("/\x1b\[[0-9;]*m/", '', $s);
-
-        return $out ?? $s;
-    }
-
-    private function displayWidth(string $s): int
-    {
-        return $this->strLen($this->stripAnsiSgr($s));
     }
 
     private function strSlice(string $s, int $start, int $length): string

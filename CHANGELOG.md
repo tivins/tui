@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.7] - 2026-05-14
+
+### Added
+
+- `Ansi` : `stripSgr()`, `displayWidth()` pour chaînes avec séquences CSI SGR.
+- `Console` : `stdinIsTty()`, `readLine()` pour l’entrée standard.
+- `tests/ansi_console.php` : assertions sur ces utilitaires.
+
+### Changed
+
+- `Frame` utilise `Ansi` pour la mesure du contenu et le rognage des lignes colorées.
+- `examples/showcase.php` : centre les blocs avec `Ansi`, pause avec `Console`.
+- `tests/frame_edges.php` : largeurs visibles via `Ansi::stripSgr`.
+
 ## [1.1.6] - 2026-05-14
 
 ### Fixed
