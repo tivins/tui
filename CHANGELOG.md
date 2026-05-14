@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.13] - 2026-05-14
+
+### Changed
+
+- `examples/throbber.php` : démo deux lignes avec `Terminal::cursorHide()` / `cursorShow()` (+ `finally`) pendant la réécriture pour éviter le curseur qui saute ou clignote.
+
 ## [1.1.12] - 2026-05-14
 
 ### Added

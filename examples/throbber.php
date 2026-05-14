@@ -8,8 +8,8 @@ declare(strict_types=1);
  * 1. Bloc multi-lignes (défilement) : deux indicateurs indépendants ; la durée `(m:ss)` ne change
  *    qu’après environ une seconde écoulée (pause 250 ms entre images).
  * 2. Une seule ligne : {@see \Tivins\Tui\Terminal::lineOverwritePrefix()} + rendu + `flush()`.
- * 3. Deux lignes : depuis la fin de la 2ᵉ ligne, {@see \Tivins\Tui\Terminal::cursorPreviousLine(1)}
- *    (équivalent `\e[1A\r`, début de ligne supérieure), puis {@see \Tivins\Tui\Terminal::eraseLine()} sur chaque ligne — pas `cursorUp(2)` si un titre est au-dessus du bloc.
+ * 3. Deux lignes : depuis la fin de la 2ᵉ ligne, {@see \Tivins\Tui\Terminal::cursorPreviousLine(1)},
+ *    puis {@see \Tivins\Tui\Terminal::eraseLine()} ; {@see \Tivins\Tui\Terminal::cursorHide()} pendant la boucle évite que le curseur visible ne saute entre les lignes au clignotement.
  *
  * Exécuter : php examples/throbber.php
  */
@@ -17,6 +17,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use Tivins\Tui\Terminal;
 use Tivins\Tui\Throbber;
+use Tivins\Tui\TermColor;
 
 echo "— Plusieurs lignes (défilement) —" . PHP_EOL;
 
@@ -61,7 +62,7 @@ echo PHP_EOL . "— Deux lignes (réécriture en place) —" . PHP_EOL;
 
 $row1 = (new Throbber())
     ->message('Indexing…')
-    ->template('{spinner} {message}{trail}')
+    ->template(TermColor::Red->fmt('{spinner}') . ' {message}{trail}')
     ->start();
 $row2 = (new Throbber())
     ->message('Fetching')
@@ -74,15 +75,20 @@ echo $row2->render();
 flush();
 
 $twoLineSteps = 20;
-foreach (range(1, $twoLineSteps) as $_) {
-    Terminal::cursorPreviousLine(1);
-    Terminal::eraseLine();
-    echo $row1->render() . "\n";
-    Terminal::eraseLine();
-    echo $row2->render();
-    flush();
-    $row1->tick();
-    $row2->tick();
-    usleep(100_000);
+Terminal::cursorHide();
+try {
+    foreach (range(1, $twoLineSteps) as $_) {
+        Terminal::cursorPreviousLine(1);
+        Terminal::eraseLine();
+        echo $row1->render() . "\n";
+        Terminal::eraseLine();
+        echo $row2->render();
+        flush();
+        $row1->tick();
+        $row2->tick();
+        usleep(100_000);
+    }
+} finally {
+    Terminal::cursorShow();
 }
 echo PHP_EOL;
