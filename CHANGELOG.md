@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.5.0] - 2026-05-14
+
+### Added
+
+- {@see TextViewport} : budget colonnes pour préparer du texte brut (sans SGR) — expansion des tabulations, coupures selon {@see Ansi::displayWidth}, option sans césure des « mots » trop longs, duplication avec {@see TextViewport::withColumns()}, enveloppe avec étiquette {@see TextViewport::wrapPlainParagraphWithLeader()}, marges de continuation {@see TextViewport::continuationPadPlain()}.
+
+### Tests
+
+- `tests/text_viewport.php`.
+
 ## [1.4.2] - 2026-05-14
 
 ### Fixed
