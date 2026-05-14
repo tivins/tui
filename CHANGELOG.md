@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.4.1] - 2026-05-14
+
+### Changed
+
+- `README.md` : `Layout`, `ProgressBar`, démo `examples/fullscreen_demo.php`, commandes de test ; extrait « side-by-side » et `ProgressBar::render`.
+
+## [1.4.0] - 2026-05-14
+
+### Added
+
+- `Layout::horizontal()` : juxtapose des blocs multi-lignes en alignant chaque rangée (largeur affichée ANSI).
+- `ProgressBar::render()` : barre `[█/░]` réutilisable (pourcentage 0–100, largeur bornée).
+- `examples/fullscreen_demo.php` : démo plein écran (tampon alternatif, cadres juxtaposés, `Throbber`, `RotatingColors`, barres, cadre imbriqué).
+
+### Tests
+
+- `tests/layout.php`, `tests/progress_bar.php`.
+- `tests/rotating_colors.php` : attentes alignées sur {@see RotatingColors::defaultPalette()} actuelle (245 / 250 / …).
+
 ## [1.3.2] - 2026-05-14
 
 ### Fixed

@@ -25,17 +25,17 @@ if (\count($pal) !== 7) {
     fail('defaultPalette doit avoir 7 entrées');
 }
 
-$ab0 = Ansi::fmtForeground256(237, 'a') . Ansi::fmtForeground256(240, 'b');
+$ab0 = Ansi::fmtForeground256(245, 'a') . Ansi::fmtForeground256(250, 'b');
 if (RotatingColors::render('ab', 0) !== $ab0) {
     fail('ab offset 0 : ' . RotatingColors::render('ab', 0));
 }
 
-$ab1 = Ansi::fmtForeground256(240, 'a') . Ansi::fmtForeground256(244, 'b');
+$ab1 = Ansi::fmtForeground256(250, 'a') . Ansi::fmtForeground256(250, 'b');
 if (RotatingColors::render('ab', 1) !== $ab1) {
     fail('ab offset 1');
 }
 
-$abm1 = Ansi::fmtForeground256(237, 'a') . Ansi::fmtForeground256(237, 'b');
+$abm1 = Ansi::fmtForeground256(245, 'a') . Ansi::fmtForeground256(245, 'b');
 if (RotatingColors::render('ab', -1) !== $abm1) {
     fail('ab offset -1');
 }
