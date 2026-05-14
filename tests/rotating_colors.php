@@ -21,21 +21,21 @@ function fail(string $msg): void
 }
 
 $pal = RotatingColors::defaultPalette();
-if (\count($pal) !== 5) {
-    fail('defaultPalette doit avoir 5 couleurs');
+if (\count($pal) !== 7) {
+    fail('defaultPalette doit avoir 7 entrées');
 }
 
-$ab0 = TermColor::Gray->fmt('a') . TermColor::LightGray->fmt('b');
+$ab0 = Ansi::fmtForeground256(237, 'a') . Ansi::fmtForeground256(240, 'b');
 if (RotatingColors::render('ab', 0) !== $ab0) {
     fail('ab offset 0 : ' . RotatingColors::render('ab', 0));
 }
 
-$ab1 = TermColor::LightGray->fmt('a') . TermColor::White->fmt('b');
+$ab1 = Ansi::fmtForeground256(240, 'a') . Ansi::fmtForeground256(244, 'b');
 if (RotatingColors::render('ab', 1) !== $ab1) {
     fail('ab offset 1');
 }
 
-$abm1 = TermColor::Gray->fmt('a') . TermColor::Gray->fmt('b');
+$abm1 = Ansi::fmtForeground256(237, 'a') . Ansi::fmtForeground256(237, 'b');
 if (RotatingColors::render('ab', -1) !== $abm1) {
     fail('ab offset -1');
 }
@@ -55,6 +55,18 @@ try {
     // ok
 }
 
+try {
+    RotatingColors::render('x', 0, [999]);
+    fail('code 256 hors plage');
+} catch (\InvalidArgumentException $e) {
+    // ok
+}
+
+$mixed = RotatingColors::render('xy', 0, [TermColor::Red, TermColor::Blue]);
+if ($mixed !== TermColor::Red->fmt('x') . TermColor::Blue->fmt('y')) {
+    fail('palette mixte TermColor');
+}
+
 $thr = (new Throbber())->message('Hi')->template('{rotating_message}');
 $r0 = $thr->render();
 $thr->tick();
@@ -64,6 +76,20 @@ if ($r0 === $r1) {
 }
 if (!str_contains($r0, 'H') || !str_contains($r0, 'i')) {
     fail('{rotating_message} contenu : ' . $r0);
+}
+if ($thr->rotatingColorOffset() !== 1) {
+    fail('rotatingColorOffset après 1 tick');
+}
+
+$long = new Throbber()->style(Throbber::STYLE_BRAILLE);
+for ($i = 0; $i < 10; $i++) {
+    $long->tick();
+}
+if ($long->frameIndex() !== 0) {
+    fail('après 10 ticks braille frameIndex doit repasser à 0');
+}
+if ($long->rotatingColorOffset() !== 10) {
+    fail('rotatingColorOffset doit croître sans sauter au reboot du spinner');
 }
 
 echo "ok\n";

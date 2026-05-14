@@ -44,6 +44,12 @@ final class Throbber
 
     private int $frameIndex = 0;
 
+    /**
+     * Décalage pour `{rotating_message}` : augmente d’un pas à chaque {@see tick()}, sans boucler
+     * avec le spinner (sinon la couleur « saute » quand les images du style repartent à zéro).
+     */
+    private int $rotatingColorOffset = 0;
+
     private string $message = '';
 
     private ?float $percent = null;
@@ -109,6 +115,7 @@ final class Throbber
         }
         $this->style = $style;
         $this->frameIndex = 0;
+        $this->rotatingColorOffset = 0;
 
         return $this;
     }
@@ -168,8 +175,15 @@ final class Throbber
     public function resetFrame(): self
     {
         $this->frameIndex = 0;
+        $this->rotatingColorOffset = 0;
 
         return $this;
+    }
+
+    /** Décalage cumulé utilisé par `{rotating_message}` (incrémenté à chaque {@see tick()}). */
+    public function rotatingColorOffset(): int
+    {
+        return $this->rotatingColorOffset;
     }
 
     /** Avance l'animation d'un pas (boucle sur les images du style). */
@@ -181,6 +195,7 @@ final class Throbber
             return $this;
         }
         $this->frameIndex = ($this->frameIndex + 1) % $n;
+        $this->rotatingColorOffset++;
 
         return $this;
     }
@@ -269,7 +284,7 @@ final class Throbber
         return [
             'spinner'          => $this->spinner(),
             'message'          => $this->message,
-            'rotating_message'  => RotatingColors::render($this->message, $this->frameIndex),
+            'rotating_message'  => RotatingColors::render($this->message, $this->rotatingColorOffset),
             'trail'            => $this->trail(),
             'percent'          => $pct,
             'elapsed'          => $elapsed,

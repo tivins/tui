@@ -26,6 +26,26 @@ if (Ansi::displayWidth("\e[92mhello\e[0m") !== 5) {
     fail('Ansi::displayWidth doit ignorer les séquences pour compter les colonnes');
 }
 
+$f256 = Ansi::fmtForeground256(244, 'z');
+if (!str_starts_with($f256, "\e[38;5;244m") || !str_ends_with($f256, "\e[0m") || !str_contains($f256, 'z')) {
+    fail('Ansi::fmtForeground256 244 + z');
+}
+if (Ansi::stripSgr($f256) !== 'z') {
+    fail('stripSgr après fmtForeground256');
+}
+try {
+    Ansi::fmtForeground256(-1, 'x');
+    fail('fmtForeground256 -1');
+} catch (\InvalidArgumentException $e) {
+    // ok
+}
+try {
+    Ansi::fmtForeground256(256, 'x');
+    fail('fmtForeground256 256');
+} catch (\InvalidArgumentException $e) {
+    // ok
+}
+
 if (!is_bool(Console::stdinIsTty())) {
     fail('Console::stdinIsTty doit retourner un booléen');
 }

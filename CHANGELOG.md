@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.3.2] - 2026-05-14
+
+### Fixed
+
+- `Throbber` `{rotating_message}` : décalage de couleur indépendant du cycle du spinner (`rotatingColorOffset`, incrémenté à chaque `tick()`) pour éviter le « saut » visuel quand les images du style repartent à zéro.
+
+### Added
+
+- `Throbber::rotatingColorOffset()` : lecture du décalage cumulé pour le message tournant.
+
+## [1.3.1] - 2026-05-14
+
+### Added
+
+- `Ansi::fmtForeground256(int $code, string $text)` — avant-plan jeu 256 couleurs (`38;5`).
+
+### Changed
+
+- `RotatingColors::defaultPalette()` utilise des niveaux de gris intermédiaires (**237, 240, 244, 255, …**) pour un dégradé plus doux ; `render()` accepte une palette `list<TermColor|int>` (`int` = code 256).
+
 ## [1.3.0] - 2026-05-14
 
 ### Added

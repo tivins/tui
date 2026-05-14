@@ -21,7 +21,7 @@ $t = new Terminal();
 $t->cursorHide();
 try {
     $th = (new Throbber())
-        ->style(Throbber::STYLE_PIPE)
+        ->style(Throbber::STYLE_DOTS)
         ->message($text)
         ->template('{spinner} {rotating_message}');
 

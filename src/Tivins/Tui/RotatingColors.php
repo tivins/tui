@@ -8,30 +8,24 @@ namespace Tivins\Tui;
  * Effet « couleurs tournantes » : palette décalée le long du texte (flash qui se déplace).
  *
  * Chaque glyphe reçoit une couleur selon sa position et un décalage entier (typiquement
- * incrémenté à chaque frame). La palette par défaut est un dégradé gris symétrique.
+ * incrémenté à chaque frame). La palette par défaut utilise la rampe de gris du jeu
+ * 256 couleurs (échelons plus fins que les seuls gris ANSI 16 couleurs).
  */
 final class RotatingColors
 {
     /**
-     * Dégradé gris → gris clair → blanc → gris clair → gris (une « vague » centrée).
+     * Vague grise centrée sur du blanc (indices xterm 237 → 255 → 237).
      *
-     * @return list<TermColor>
+     * @return list<int> codes 256 couleurs (0–255)
      */
     public static function defaultPalette(): array
     {
-        return [
-            TermColor::Gray,
-            TermColor::LightGray,
-            TermColor::LightGray,
-            TermColor::White,
-            TermColor::LightGray,
-            TermColor::LightGray,
-            TermColor::Gray,
-        ];
+        return [245, 250, 250, 255, 250, 250, 245];
+        //return [237, 240, 244, 255, 244, 240, 237];
     }
 
     /**
-     * @param list<TermColor>|null $palette null = {@see defaultPalette()}
+     * @param list<TermColor|int>|null $palette entrées `int` = avant-plan 256 couleurs ; null = {@see defaultPalette()}
      */
     public static function render(string $text, int $offset = 0, ?array $palette = null): string
     {
@@ -46,10 +40,19 @@ final class RotatingColors
 
         foreach ($chars as $i => $ch) {
             $pi = self::mod($i + $offset, $n);
-            $out .= $palette[$pi]->fmt($ch);
+            $out .= self::applyEntry($palette[$pi], $ch);
         }
 
         return $out;
+    }
+
+    private static function applyEntry(TermColor|int $entry, string $ch): string
+    {
+        if ($entry instanceof TermColor) {
+            return $entry->fmt($ch);
+        }
+
+        return Ansi::fmtForeground256($entry, $ch);
     }
 
     /** @return list<string> */

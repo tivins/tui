@@ -32,4 +32,18 @@ final class Ansi
 
         return strlen($plain);
     }
+
+    /**
+     * Avant-plan en 256 couleurs (`\e[38;5;nm`).
+     *
+     * @param int $code 0–255 (repères gris usuels : 232–255).
+     */
+    public static function fmtForeground256(int $code, string $text): string
+    {
+        if ($code < 0 || $code > 255) {
+            throw new \InvalidArgumentException('Code couleur 256 hors plage : ' . $code);
+        }
+
+        return "\e[38;5;{$code}m" . $text . "\e[0m";
+    }
 }
