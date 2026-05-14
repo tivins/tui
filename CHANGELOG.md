@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.1.2] - 2026-05-14
+
+### Added
+
+- `AsciiText` : jeu complet Future Smooth pour `AsciiText::CHARSET`, généré depuis `Future_Smooth.flf` (`AsciiTextGlyphs.generated.php`) avec `php tools/generate_future_smooth.php`.
+- `tests/ascii_text.php` : assertions sur la carte des glyphes et la composition.
+
+### Changed
+
+- `AsciiText::get()` utilise le découpage Unicode (`preg_split`) et `mb_strtolower()` pour les majuscules ; `toString()` insère un espace entre glyphes et joint les lignes avec `\n`.
+
 ## [1.1.1] - 2026-05-14
 
 ### Added

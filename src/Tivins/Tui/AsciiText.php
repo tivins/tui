@@ -4,37 +4,60 @@ declare(strict_types=1);
 
 namespace Tivins\Tui;
 /*
-╭─╮  ╭╮   ╭─╴╶┬╮╭─╴╭─╴╭─╴╷ ╷╷ ╭╮╷╭ ╷  ╭┬╮╭╮╷╭─╮╭─╮╭─╮╭─╮╭─╮╶┬╴╷ ╷╷ ╷╷ ╷╷ ╷╷ ╷╶─╮╭─╮╶╮ ╭─╮╭─╮╷ ╷╭─╴╭─╮╭─╮╭─╮╭─╮╷     ╷ ╷╭┬╮╭╮╷╭╮     ╷╷╷ ╭╴╭╴╭─    ╷ ╮╷ ╭─╮╶╮ ─╮╶╮  ╷ ╷  
-├─┤  ├┴╮  │   ││├╴ ├╴ │╶╮├─┤│  │├┴╮│  ││││╰┤│ │├─╯│╮│├┬╯╰─╮ │ │ ││╭╯│╷│╭┼╯╰┬╯╭─╯│││ │ ╭─╯╶─┤╰─┤╰─╮├─╮  │├─┤╰─┤╵╵ ╵  ╶┼╴╰┼╮╭─╯│╶┼╴╭─╯   ╶┤ │ │  ╶─╴│  ╰╮│├╯ │  │ ├╴╭╯╶┼╴ 
-╵ ╵  ╰─╯  ╰─╴╶┴╯╰─╴╵  ╰─╯╵ ╵╵╰─╯╵ ╵╰─╴╵ ╵╵ ╵╰─╯╵  ╰┴╯╵╰╴╰─╯ ╵ ╰─╯╰╯ ╰┴╯╵ ╵ ╵ ╰─╴╰─╯╶┴╴╰─╴╰─╯  ╵╰─╯╰─╯  ╵╰─╯╰─╯╵╵ ╯ ╯╵ ╵╰┴╯╵╰╯╰─╯        ╰╴╰╴╰─    ╵   ╵╰─╴╶╯ ─╯╶╯ ╵  ╵ ╵
-abcdefghijklmnopqrstuvwxyz0123456789!:;,*$%&~"'{([-|`\@)]}/+.
-
-
-Source : https://patorjk.com/software/taag/#p=display&f=Future+Smooth&t=abcdefghijklmnopqrstuvwxyz0123456789%21%3A%3B%2C*%24%25%26%7E%22%27%7B%28%5B-%7C%60%5C%40%29%5D%7D%2F%2B.&x=none&v=4&h=4&w=80&we=false
+Glyphs are generated from the FIGlet / TOIlet font Future Smooth (Future_Smooth.flf in figlet.js): php tools/generate_future_smooth.php
 */
 
 class AsciiText
 {
-    public const A = ["╭─╮", "├─┤", "╵ ╵"];
-    public const B = ["╭╮ ", "├┴╮", "╰─╯"];
-    public const C = ["╭─╴", "│  ", "╰─╴"];
+    /** @var array<string, array{string,string,string}>|null */
+    private static ?array $glyphCache = null;
 
-    public static function get(string $name): array
+    private const FALLBACK = [' ', ' ', ' '];
+
+    /** Subset rendered with Future Smooth (lowercase letters; Latin symbols as in the banner above). */
+    public const CHARSET = 'abcdefghijklmnopqrstuvwxyz0123456789!:;,*$%&~"' . "'" . '{([-|`\\@)]}/+.';
+
+    /**
+     * @return list<array{string,string,string}>
+     */
+    public static function get(string $text): array
     {
-        $letters = str_split($name);
-        $letters = array_map(fn($letter) => self::{$letter} ?? ['','',''], $letters);
-        return $letters;
+        $chars = preg_split('//u', $text, -1, PREG_SPLIT_NO_EMPTY);
+        if ($chars === false) {
+            return [];
+        }
+
+        $map = self::glyphs();
+        $out = [];
+        foreach ($chars as $ch) {
+            $out[] = $map[mb_strtolower($ch)] ?? self::FALLBACK;
+        }
+
+        return $out;
     }
 
+    /**
+     * @param list<array{string,string,string}> $letters
+     */
     public static function toString(array $letters): string
     {
-        for ($i=0;$i<3;$i++) {
-            $line = '';
-            foreach ($letters as $letter) {
-                $line .= $letter[$i];
+        $lines = ['', '', ''];
+        foreach ($letters as $letter) {
+            for ($i = 0; $i < 3; $i++) {
+                $lines[$i] .= ($lines[$i] !== '' ? ' ' : '') . $letter[$i];
             }
-            $lines[] = $line;
         }
-        return implode(PHP_EOL, $lines);
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * @return array<string, array{string,string,string}>
+     */
+    private static function glyphs(): array
+    {
+        self::$glyphCache ??= require __DIR__ . '/AsciiTextGlyphs.generated.php';
+
+        return self::$glyphCache;
     }
 }

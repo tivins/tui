@@ -5,8 +5,16 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Tivins\Tui\AsciiText;
+use Tivins\Tui\Frame;
+use Tivins\Tui\TermColor;
 
-echo implode(PHP_EOL, AsciiText::A) . PHP_EOL;
-echo implode(PHP_EOL, AsciiText::B) . PHP_EOL;
+echo AsciiText::toString(AsciiText::get('abc')) . PHP_EOL . PHP_EOL;
 
-echo AsciiText::toString(AsciiText::get('ABC')) . PHP_EOL;
+echo AsciiText::toString(AsciiText::get('Hello 2026!')) . PHP_EOL;
+
+echo Frame::from(AsciiText::toString(AsciiText::get('LLM-PHP')))
+    ->borderStyle(Frame::STYLE_ROUNDED)
+    ->borderColor(TermColor::Green)
+    ->contentColor(TermColor::White)
+    ->paddingHorizontal(1)
+    ->render() . PHP_EOL;
