@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Tivins\Tui;
 
 /**
- * Indicateur d’activité (spinner) pour interfaces terminal : plusieurs styles d’animation,
- * message, pourcentage et durée, texte piloté par un modèle (`{spinner}`, `{message}`, `{trail}`, etc.).
+ * Indicateur d'activité (spinner) pour interfaces terminal : plusieurs styles d'animation,
+ * message, pourcentage et durée, texte piloté par un modèle (`{spinner}`, `{message}`, `{trail}`, `{bar}`, etc.).
  *
- * Chaque instance gère son propre index d’image pour permettre plusieurs indicateurs à l’écran.
-     * Pour réécrire une ligne : {@see Terminal::lineOverwritePrefix()} (ou {@see Terminal::carriageReturn()} + {@see Terminal::eraseLine()}), puis {@see render()}.
+ * Chaque instance gère son propre index d'image pour permettre plusieurs indicateurs à l'écran.
+ * Pour réécrire une ligne : {@see Terminal::lineOverwritePrefix()} (ou {@see Terminal::carriageReturn()} + {@see Terminal::eraseLine()}), puis {@see render()}.
  */
 final class Throbber
 {
@@ -18,6 +18,12 @@ final class Throbber
     /** Rotation ASCII (terminaux sans police braille lisible). */
     public const STYLE_PIPE = 'pipe';
 
+    /** Braille densément rempli – animation circulaire (8 images). */
+    public const STYLE_DOTS = 'dots';
+
+    /** Barre montante/descendante en blocs Unicode (14 images). */
+    public const STYLE_LINE = 'line';
+
     /** @var array<string, list<string>> */
     private static array $styleFrames = [
         self::STYLE_BRAILLE => [
@@ -25,6 +31,12 @@ final class Throbber
         ],
         self::STYLE_PIPE => [
             '|', '/', '-', '\\',
+        ],
+        self::STYLE_DOTS => [
+            '⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷',
+        ],
+        self::STYLE_LINE => [
+            '▁', '▂', '▃', '▄', '▅', '▆', '▇', '█', '▇', '▆', '▅', '▄', '▃', '▂',
         ],
     ];
 
@@ -39,6 +51,9 @@ final class Throbber
     private ?float $startedAt = null;
 
     private string $template = '{spinner} {message}{trail}';
+
+    /** Largeur de la barre de progression `{bar}` en caractères (défaut : 10). */
+    private int $barWidth = 10;
 
     /**
      * @param list<string> $frames
@@ -69,7 +84,7 @@ final class Throbber
     }
 
     /**
-     * Formate une durée en secondes pour l’affichage : `m:ss` si moins d’une heure, sinon `h:mm:ss`.
+     * Formate une durée en secondes pour l'affichage : `m:ss` si moins d'une heure, sinon `h:mm:ss`.
      */
     public static function formatDuration(float $seconds): string
     {
@@ -105,7 +120,7 @@ final class Throbber
         return $this;
     }
 
-    /** Entier 0–100 recommandé ; null = ne pas afficher de pourcentage. */
+    /** Entier 0–100 recommandé ; null = ne pas afficher de pourcentage ni de barre. */
     public function percent(?float $value): self
     {
         $this->percent = $value;
@@ -131,11 +146,21 @@ final class Throbber
     }
 
     /**
-     * Modèle avec remplacements : `{spinner}`, `{message}`, `{trail}`, `{percent}`, `{elapsed}`, `{elapsed_paren}`.
+     * Modèle avec remplacements : `{spinner}`, `{message}`, `{trail}`, `{percent}`, `{elapsed}`, `{elapsed_paren}`, `{bar}`.
      */
     public function template(string $template): self
     {
         $this->template = $template;
+
+        return $this;
+    }
+
+    /**
+     * Largeur en caractères de la barre `{bar}` (par défaut 10 ; minimum 1).
+     */
+    public function barWidth(int $width): self
+    {
+        $this->barWidth = max(1, $width);
 
         return $this;
     }
@@ -147,7 +172,7 @@ final class Throbber
         return $this;
     }
 
-    /** Avance l’animation d’un pas (boucle sur les images du style). */
+    /** Avance l'animation d'un pas (boucle sur les images du style). */
     public function tick(): self
     {
         $frames = $this->framesForStyle();
@@ -165,7 +190,7 @@ final class Throbber
         return $this->frameIndex;
     }
 
-    /** Durée écoulée en secondes depuis {@see start()} ; 0 si l’horloge n’est pas démarrée. */
+    /** Durée écoulée en secondes depuis {@see start()} ; 0 si l'horloge n'est pas démarrée. */
     public function elapsedSeconds(): float
     {
         if ($this->startedAt === null) {
@@ -175,7 +200,7 @@ final class Throbber
         return microtime(true) - $this->startedAt;
     }
 
-    /** Glyphe d’animation pour l’image courante. */
+    /** Glyphe d'animation pour l'image courante. */
     public function spinner(): string
     {
         $frames = $this->framesForStyle();
@@ -242,13 +267,30 @@ final class Throbber
         }
 
         return [
-            'spinner' => $this->spinner(),
-            'message' => $this->message,
-            'trail' => $this->trail(),
-            'percent' => $pct,
-            'elapsed' => $elapsed,
+            'spinner'      => $this->spinner(),
+            'message'      => $this->message,
+            'trail'        => $this->trail(),
+            'percent'      => $pct,
+            'elapsed'      => $elapsed,
             'elapsed_paren' => $elapsedParen,
+            'bar'          => $this->renderBar(),
         ];
+    }
+
+    /**
+     * Barre de progression Unicode (`█` rempli / `░` vide) de largeur {@see $barWidth}.
+     * Retourne une chaîne vide si `percent` est null.
+     */
+    private function renderBar(): string
+    {
+        if ($this->percent === null) {
+            return '';
+        }
+        $pct = max(0.0, min(100.0, $this->percent));
+        $filled = (int) round($pct / 100.0 * $this->barWidth);
+        $empty = $this->barWidth - $filled;
+
+        return str_repeat('█', $filled) . str_repeat('░', $empty);
     }
 
     /** @return list<string> */

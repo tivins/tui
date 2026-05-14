@@ -75,4 +75,48 @@ try {
     // ok
 }
 
+// ── {bar} ────────────────────────────────────────────────────────────────────
+
+// Sans percent : {bar} = chaîne vide
+$noBar = (new Throbber())->template('{bar}');
+if ($noBar->render() !== '') {
+    fail('{bar} sans percent devrait être vide, obtenu : ' . $noBar->render());
+}
+
+// 0 % → tout vide
+$b0 = (new Throbber())->percent(0.0)->template('{bar}')->barWidth(10);
+if ($b0->render() !== '░░░░░░░░░░') {
+    fail('{bar} 0% 10 colonnes : ' . $b0->render());
+}
+
+// 100 % → tout rempli
+$b100 = (new Throbber())->percent(100.0)->template('{bar}')->barWidth(10);
+if ($b100->render() !== '██████████') {
+    fail('{bar} 100% 10 colonnes : ' . $b100->render());
+}
+
+// 50 % → moitié remplie (arrondi)
+$b50 = (new Throbber())->percent(50.0)->template('{bar}')->barWidth(10);
+if ($b50->render() !== '█████░░░░░') {
+    fail('{bar} 50% 10 colonnes : ' . $b50->render());
+}
+
+// barWidth personnalisée
+$bw = (new Throbber())->percent(25.0)->template('{bar}')->barWidth(4);
+if ($bw->render() !== '█░░░') {
+    fail('{bar} 25% 4 colonnes : ' . $bw->render());
+}
+
+// ── Nouveaux styles ──────────────────────────────────────────────────────────
+
+$dots = (new Throbber())->style(Throbber::STYLE_DOTS);
+if (count($dots->framesForCurrentStyle()) !== 8) {
+    fail('STYLE_DOTS doit avoir 8 images');
+}
+
+$line = (new Throbber())->style(Throbber::STYLE_LINE);
+if (count($line->framesForCurrentStyle()) !== 14) {
+    fail('STYLE_LINE doit avoir 14 images');
+}
+
 echo "ok\n";

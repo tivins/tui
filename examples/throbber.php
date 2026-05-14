@@ -3,13 +3,14 @@
 declare(strict_types=1);
 
 /**
- * Démo : {@see \Tivins\Tui\Throbber} (animation braille, message, %, durée).
+ * Démo : {@see \Tivins\Tui\Throbber} (animation, barre de progression, couleurs, durée).
  *
- * 1. Bloc multi-lignes (défilement) : deux indicateurs indépendants ; la durée `(m:ss)` ne change
- *    qu’après environ une seconde écoulée (pause 250 ms entre images).
- * 2. Une seule ligne : {@see \Tivins\Tui\Terminal::lineOverwritePrefix()} + rendu + `flush()`.
- * 3. Deux lignes : depuis la fin de la 2ᵉ ligne, {@see \Tivins\Tui\Terminal::cursorPreviousLine(1)},
- *    puis {@see \Tivins\Tui\Terminal::eraseLine()} ; {@see \Tivins\Tui\Terminal::cursorHide()} pendant la boucle évite que le curseur visible ne saute entre les lignes au clignotement.
+ * 1. Défilement (multi-lignes) : sorties successives avec deux spinners colorés.
+ * 2. Barre de progression (une ligne, réécriture en place, avancement 0 → 100 %).
+ * 3. Deux tâches en parallèle (deux lignes, réécriture en place, curseur caché).
+ *    Chaque frame est bufferisée en une seule chaîne avant émission pour minimiser
+ *    les états partiels à l'écran. La vidange utilise {@see throbber_demo_flush_output()}
+ *    (`ob_flush()` uniquement si un tampon PHP est actif).
  *
  * Exécuter : php examples/throbber.php
  */
@@ -19,76 +20,123 @@ use Tivins\Tui\Terminal;
 use Tivins\Tui\Throbber;
 use Tivins\Tui\TermColor;
 
-echo "— Plusieurs lignes (défilement) —" . PHP_EOL;
+/** Vide le tampon PHP puis stdout ; sans `output_buffering`, `ob_flush()` émettrait une notice. */
+function throbber_demo_flush_output(): void
+{
+    if (ob_get_level() > 0) {
+        ob_flush();
+    }
+    flush();
+}
+
+// ─── Section 1 : défilement ──────────────────────────────────────────────────
+echo TermColor::Gray->fmt('─── défilement (multi-lignes) ───') . "\n\n";
 
 $think = (new Throbber())
     ->message('Thinking...')
-    ->template('{spinner} {message}{trail}')
+    ->template(TermColor::Cyan->fmt('{spinner}') . ' {message}{trail}')
     ->start();
 
 $dl = (new Throbber())
     ->message('downloading')
     ->percent(45.0)
-    ->template('{spinner} {message}{trail}')
+    ->style(Throbber::STYLE_DOTS)
+    ->template(TermColor::Yellow->fmt('{spinner}') . ' {message}{trail}')
     ->start();
-/*
-foreach (range(1, 8) as $_) {
-    echo $think->render() . PHP_EOL;
-    echo $dl->render() . PHP_EOL;
-    echo str_repeat('-', 40) . PHP_EOL;
+
+foreach (range(1, 6) as $_) {
+    echo $think->render() . "\n";
+    echo $dl->render() . "\n";
+    echo TermColor::Gray->fmt(str_repeat('─', 30)) . "\n";
     $think->tick();
     $dl->tick();
-    usleep(250_000);
+    usleep(200_000);
 }
-*/
-echo PHP_EOL . "— Une ligne (réécriture en place) —" . PHP_EOL;
 
-$inline = (new Throbber())
-    ->message('Working')
-    ->percent(33.0)
-    ->template('{spinner} {message}{trail}')
+// ─── Section 2 : barre de progression ────────────────────────────────────────
+echo "\n" . TermColor::Gray->fmt('─── barre de progression (une ligne) ───') . "\n\n";
+
+$bar = (new Throbber())
+    ->message('Building')
+    ->percent(0.0)
+    ->template(
+        TermColor::Green->fmt('{spinner}')
+        . ' {message}  '
+        . TermColor::LightGreen->fmt('{bar}')
+        . '  '
+        . TermColor::White->fmt('{percent}')
+        . '  '
+        . TermColor::Gray->fmt('{elapsed_paren}')
+    )
+    ->barWidth(20)
     ->start();
 
-$lineSteps = 48;
-foreach (range(1, $lineSteps) as $_) {
-    echo Terminal::lineOverwritePrefix() . $inline->render();
-    flush();
-    $inline->tick();
-    usleep(90_000);
+foreach (range(0, 100) as $pct) {
+    $bar->percent((float) $pct);
+    echo Terminal::lineOverwritePrefix() . $bar->render();
+    throbber_demo_flush_output();
+    $bar->tick();
+    usleep(35_000);
 }
-echo PHP_EOL;
+echo "\n";
 
-echo PHP_EOL . "— Deux lignes (réécriture en place) —" . PHP_EOL;
+// ─── Section 3 : deux tâches en parallèle ────────────────────────────────────
+echo "\n" . TermColor::Gray->fmt('─── deux tâches en parallèle (deux lignes) ───') . "\n\n";
 
-$row1 = (new Throbber())
-    ->message('Indexing…')
-    ->template(TermColor::Red->fmt('{spinner}') . ' {message}{trail}')
+$task1 = (new Throbber())
+    ->message('Indexing ')
+    ->percent(0.0)
+    ->style(Throbber::STYLE_DOTS)
+    ->template(
+        TermColor::LightMagenta->fmt('{spinner}')
+        . ' {message}  '
+        . TermColor::LightMagenta->fmt('{bar}')
+        . '  '
+        . TermColor::White->fmt('{percent}')
+    )
+    ->barWidth(16)
     ->start();
-$row2 = (new Throbber())
-    ->message('Fetching')
-    ->percent(62.0)
-    ->template('{spinner} {message}{trail}')
+
+$task2 = (new Throbber())
+    ->message('Fetching ')
+    ->percent(0.0)
+    ->template(
+        TermColor::LightBlue->fmt('{spinner}')
+        . ' {message}  '
+        . TermColor::LightBlue->fmt('{bar}')
+        . '  '
+        . TermColor::White->fmt('{percent}')
+        . '  '
+        . TermColor::Gray->fmt('{elapsed_paren}')
+    )
+    ->barWidth(16)
     ->start();
 
-echo $row1->render() . "\n";
-echo $row2->render();
-flush();
+// Rendu initial (deux lignes déjà à l'écran avant la boucle)
+echo $task1->render() . "\n";
+echo $task2->render();
+throbber_demo_flush_output();
 
-$twoLineSteps = 20;
 Terminal::cursorHide();
 try {
-    foreach (range(1, $twoLineSteps) as $_) {
-        Terminal::cursorPreviousLine(1);
-        Terminal::eraseLine();
-        echo $row1->render() . "\n";
-        Terminal::eraseLine();
-        echo $row2->render();
-        flush();
-        $row1->tick();
-        $row2->tick();
-        usleep(100_000);
+    foreach (range(1, 68) as $step) {
+        $task1->percent(min(100.0, $step * 1.5));
+        $task2->percent(min(100.0, $step * 1.0));
+
+        // Tout le rendu est bufferisé en une seule chaîne avant l'écriture :
+        // on remonte d'une ligne (CSI CPL), on efface et on réécrit les deux lignes
+        // en un seul echo + flush → aucun état partiel visible à l'écran.
+        $frame = "\e[1F"
+            . "\e[2K" . $task1->render() . "\n"
+            . "\e[2K" . $task2->render();
+        echo $frame;
+        throbber_demo_flush_output();
+
+        $task1->tick();
+        $task2->tick();
+        usleep(80_000);
     }
 } finally {
     Terminal::cursorShow();
 }
-echo PHP_EOL;
+echo "\n";

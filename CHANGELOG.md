@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.2.1] - 2026-05-14
+
+### Fixed
+
+- `examples/throbber.php` : plus d’avertissement `ob_flush(): Failed to flush buffer` quand `output_buffering` est désactivé ; utilitaire `throbber_demo_flush_output()` qui n’appelle `ob_flush()` que si `ob_get_level() > 0`.
+
+## [1.2.0] - 2026-05-14
+
+### Added
+
+- `Throbber` : placeholder `{bar}` — barre de progression Unicode (`█` / `░`) de largeur configurable via `barWidth(int $width)`.
+- `Throbber` : `STYLE_DOTS` (`⣾⣽⣻⢿⡿⣟⣯⣷`, 8 images — braille circulaire dense) et `STYLE_LINE` (`▁▂▃▄▅▆▇█▇▆▅▄▃▂`, 14 images — barre montante/descendante).
+
+### Changed
+
+- `examples/throbber.php` : démo entièrement repensée — section défilement restaurée avec couleurs, section barre de progression avançant de 0 à 100 %, section deux tâches en parallèle avec barres colorées ; chaque frame bufferisée en une seule chaîne + `ob_flush()/flush()` pour éliminer les états partiels à l'écran.
+- `Throbber` : fix indentation dans le docblock (ligne introductive).
+- `tests/throbber.php` : tests ajoutés pour `{bar}` (0 %, 50 %, 100 %, `barWidth` personnalisée, `{bar}` sans percent), `STYLE_DOTS` et `STYLE_LINE`.
+
 ## [1.1.13] - 2026-05-14
 
 ### Changed
