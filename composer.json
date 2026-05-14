@@ -1,0 +1,20 @@
+{
+    "name": "tivins/tui",
+    "description": "terminal user interface",
+    "version": "1.1.1",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Tivins\\Tui\\": "src/Tivins/Tui/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Tivins",
+            "email": "pub.git@elabo.fr"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {}
+}
