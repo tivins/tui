@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.8] - 2026-05-14
+
+### Added
+
+- `README.md` : project overview in English (install, components, examples, tests, tooling).
+
 ## [1.1.7] - 2026-05-14
 
 ### Added
