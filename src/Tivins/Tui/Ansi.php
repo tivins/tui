@@ -21,16 +21,59 @@ final class Ansi
         return $out ?? $s;
     }
 
-    /** Largeur à l’écran (sans compter les séquences SGR retirées par {@see stripSgr}). */
+    /**
+     * Largeur à l’écran (sans compter les séquences SGR retirées par {@see stripSgr}).
+     *
+     * Utilise {@see mb_strwidth} quand il est disponible (règles type « East Asian width ») :
+     * les emojis et caractères « fullwidth » comptent en général 2 colonnes en terminal, contrairement
+     * à {@see mb_strlen} qui ne compte que les points de code.
+     */
     public static function displayWidth(string $s): int
     {
         $plain = self::stripSgr($s);
+
+        if (function_exists('mb_strwidth')) {
+            return mb_strwidth($plain, 'UTF-8');
+        }
 
         if (function_exists('mb_strlen')) {
             return mb_strlen($plain, 'UTF-8');
         }
 
         return strlen($plain);
+    }
+
+    /**
+     * Troncature UTF-8 sur une largeur d’affichage en colonnes (sans SGR dans $plain).
+     */
+    public static function slicePlainToDisplayWidth(string $plain, int $maxWidth): string
+    {
+        $maxWidth = max(0, $maxWidth);
+        if ($maxWidth === 0 || $plain === '') {
+            return '';
+        }
+
+        if (function_exists('mb_strlen') && function_exists('mb_substr')) {
+            $len = mb_strlen($plain, 'UTF-8');
+            $last = 0;
+            for ($i = 1; $i <= $len; $i++) {
+                $prefix = mb_substr($plain, 0, $i, 'UTF-8');
+                $w = function_exists('mb_strwidth')
+                    ? mb_strwidth($prefix, 'UTF-8')
+                    : mb_strlen($prefix, 'UTF-8');
+                if ($w <= $maxWidth) {
+                    $last = $i;
+
+                    continue;
+                }
+
+                break;
+            }
+
+            return $last <= 0 ? '' : mb_substr($plain, 0, $last, 'UTF-8');
+        }
+
+        return strlen($plain) <= $maxWidth ? $plain : substr($plain, 0, $maxWidth);
     }
 
     /**

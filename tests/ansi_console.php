@@ -26,6 +26,10 @@ if (Ansi::displayWidth("\e[92mhello\e[0m") !== 5) {
     fail('Ansi::displayWidth doit ignorer les séquences pour compter les colonnes');
 }
 
+if (function_exists('mb_strwidth') && Ansi::displayWidth("\e[92m🌿\e[0m") !== 2) {
+    fail('Ansi::displayWidth emoji width (2 cols) with mb_strwidth');
+}
+
 $f256 = Ansi::fmtForeground256(244, 'z');
 if (!str_starts_with($f256, "\e[38;5;244m") || !str_ends_with($f256, "\e[0m") || !str_contains($f256, 'z')) {
     fail('Ansi::fmtForeground256 244 + z');

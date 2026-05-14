@@ -80,7 +80,7 @@ Terminal::cursorHide();
 
 try {
     for ($i = 0; $i < $iterations; $i++) {
-        $wave = RotatingColors::render('··· fluid gradient ···', $i * 2);
+        $wave = RotatingColors::render('··· fluid gradient 🌿 ···', $i * 2);
 
         $leftBody = implode("\n", [
             $thLeft->render(),

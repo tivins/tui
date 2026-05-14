@@ -28,7 +28,7 @@ function visibleWidths(string $rendered): array
     foreach ($lines as $line) {
         $plain = Ansi::stripSgr($line);
         $plain = str_replace("\r", '', $plain);
-        $out[] = function_exists('mb_strlen') ? mb_strlen($plain, 'UTF-8') : strlen($plain);
+        $out[] = Ansi::displayWidth($plain);
     }
     return $out;
 }
@@ -84,6 +84,16 @@ $ansiMix = Frame::from(TermColor::Green->fmt('aa') . "\nbbbb")->borderColor(null
 $wMix = visibleWidths($ansiMix);
 if ($wMix !== [] && count(array_unique($wMix)) !== 1) {
     fail('colored content lines should share same visible width (ANSI stripped for layout)');
+}
+
+if (function_exists('mb_strwidth') && Ansi::displayWidth('🌿') !== 2) {
+    fail('emoji single char should count as 2 display columns with mb_strwidth');
+}
+
+$emojiBox = Frame::from("[MJ]\n[MJ] ### 🌿 Option 1")->borderColor(null)->render();
+$ew = visibleWidths($emojiBox);
+if ($ew === [] || count(array_unique($ew)) !== 1) {
+    fail('frame lines with emoji content should share same terminal width');
 }
 
 $apiColored = 'API : ' . TermColor::White->fmt('Terminal') . ' · ' . TermColor::White->fmt('Frame') . ' · ' . TermColor::White->fmt('AsciiText');

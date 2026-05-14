@@ -499,7 +499,7 @@ class Frame
         if ($len > $width) {
             $plain = Ansi::stripSgr($line);
 
-            return $this->strSlice($plain, 0, $width);
+            return Ansi::slicePlainToDisplayWidth($plain, $width);
         }
 
         return $line;

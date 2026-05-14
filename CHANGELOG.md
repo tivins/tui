@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.2] - 2026-05-14
+
+### Fixed
+
+- `Ansi::displayWidth()` utilisait la longueur en points de code (`mb_strlen`) : les emojis et caractères élargis n’occupaient pas le bon nombre de colonnes, ce qui décalait la bordure droite des {@see Frame}. Désormais la largeur repose sur `mb_strwidth` lorsqu’il est disponible ; la troncature du contenu trop long dans le cadre suit la même mesure via {@see Ansi::slicePlainToDisplayWidth}.
+
 ## [1.4.1] - 2026-05-14
 
 ### Changed
